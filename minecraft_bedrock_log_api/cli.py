@@ -56,7 +56,7 @@ def create_app(
         """
         Fluentdのhttp outputからのログ出力を受け取る
         """
-        print(log)
+        logger.info(log)
 
     return app
 
