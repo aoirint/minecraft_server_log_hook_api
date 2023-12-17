@@ -19,7 +19,7 @@ def create_app(
     ) -> str:
         token = authorization.credentials
         credential_exception = HTTPException(
-            status=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
@@ -39,13 +39,16 @@ def create_app(
         if username is None:
             raise credential_exception
 
+        if not isinstance(username, str):
+            raise credential_exception
+
         return username
 
     @app.post("/api")
     def post_api(
         log: str,
         current_user: Annotated[str, Depends(get_authenticated_user)],
-    ):
+    ) -> None:
         """
         Fluentdのhttp outputからのログ出力を受け取る
         """
