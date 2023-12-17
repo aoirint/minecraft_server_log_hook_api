@@ -3,8 +3,10 @@ import os
 import re
 import traceback
 from argparse import ArgumentParser
+from datetime import datetime
 from logging import getLogger
 from typing import Annotated, Any
+from zoneinfo import ZoneInfo
 
 import httpx
 import jwt
@@ -15,6 +17,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 
 logger = getLogger(__name__)
+JST = ZoneInfo("Asia/Tokyo")
 
 
 class ApiRequestBody(BaseModel):
@@ -69,10 +72,15 @@ def create_app(
         log = body.log.strip()
         logger.info(f"Incoming log: {body.log}")
 
-        m = re.search(r"INFO\] Player disconnected: (.+?), ", log)
+        m = re.search(r"\[(.+?) INFO\] Player disconnected: (.+?), ", log)
         if m:
-            minecraft_username = m.group(1)
-            message = f"{minecraft_username} がサーバーから退出しました"
+            timestamp_string = m.group(1)
+            timestamp = datetime.strptime(
+                timestamp_string, "%Y-%m-%d %H:%M:%S:%f"
+            ).astimezone(JST)
+
+            minecraft_username = m.group(2)
+            message = f"[{timestamp.isoformat()}] {minecraft_username} が退出しました"
 
             logger.info(message)
             try:
@@ -85,10 +93,15 @@ def create_app(
             except httpx.HTTPError:
                 traceback.print_exc()
 
-        m = re.search(r"INFO\] Player connected: (.+?), ", log)
+        m = re.search(r"\[(.+?) INFO\] Player connected: (.+?), ", log)
         if m:
-            minecraft_username = m.group(1)
-            message = f"{minecraft_username} がサーバーに入室しました"
+            timestamp_string = m.group(1)
+            timestamp = datetime.strptime(
+                timestamp_string, "%Y-%m-%d %H:%M:%S:%f"
+            ).astimezone(JST)
+
+            minecraft_username = m.group(2)
+            message = f"[{timestamp.isoformat()}] {minecraft_username} が入室しました"
 
             logger.info(message)
             try:
