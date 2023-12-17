@@ -66,11 +66,11 @@ def create_app(
         log = body.log.strip()
         logger.info(f"Incoming log: {body.log}")
 
-        m = re.search(r"INFO\] Player disconnected: (.+),", log)
+        m = re.search(r"INFO\] Player disconnected: (.+?), ", log)
         if m:
             logger.info(f"Disconnected: {m.group(1)}")
 
-        m = re.search(r"INFO\] Player connected: (.+),", log)
+        m = re.search(r"INFO\] Player connected: (.+?), ", log)
         if m:
             logger.info(f"Connected: {m.group(1)}")
 
