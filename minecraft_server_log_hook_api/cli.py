@@ -16,6 +16,8 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 
+from . import __VERSION__ as APP_VERSION
+
 logger = getLogger(__name__)
 JST = ZoneInfo("Asia/Tokyo")
 
@@ -28,7 +30,10 @@ def create_app(
     jwt_secret_key: str,
     discord_webhook_url: str,
 ) -> FastAPI:
-    app = FastAPI()
+    app = FastAPI(
+        title="Minecraft Server Log Hook API",
+        version=APP_VERSION,
+    )
     security = HTTPBearer()
 
     def get_authenticated_user(
@@ -149,6 +154,11 @@ def main() -> None:
         type=str,
         default=default_discord_webhook_url,
         required=default_discord_webhook_url is None,
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=APP_VERSION,
     )
     args = parser.parse_args()
 
