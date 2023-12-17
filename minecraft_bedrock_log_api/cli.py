@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from argparse import ArgumentParser
 from logging import getLogger
 from typing import Annotated, Any
@@ -7,14 +8,16 @@ from typing import Annotated, Any
 import jwt
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Body, Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 
 logger = getLogger(__name__)
 
+
 class ApiRequestBody(BaseModel):
     log: str
+
 
 def create_app(
     jwt_secret_key: str,
@@ -53,14 +56,24 @@ def create_app(
         return username
 
     @app.post("/api")
-    def post_api(
+    async def post_api(
         body: ApiRequestBody,
         current_user: Annotated[str, Depends(get_authenticated_user)],
     ) -> str:
         """
         Fluentdのhttp outputからのログ出力を受け取る
         """
-        logger.info(body.log)
+        log = body.log.strip()
+        logger.info(f"Incoming log: {body.log}")
+
+        m = re.search(r"INFO\] Player disconnected: (.+),", log)
+        if m:
+            logger.info(f"Disconnected: {m.group(1)}")
+
+        m = re.search(r"INFO\] Player connected: (.+),", log)
+        if m:
+            logger.info(f"Connected: {m.group(1)}")
+
         return "Ok"
 
     return app
