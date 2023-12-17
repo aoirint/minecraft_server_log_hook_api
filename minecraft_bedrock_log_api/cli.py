@@ -9,9 +9,12 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import BaseModel
 
 logger = getLogger(__name__)
 
+class ApiRequestBody(BaseModel):
+    log: str
 
 def create_app(
     jwt_secret_key: str,
@@ -51,13 +54,14 @@ def create_app(
 
     @app.post("/api")
     def post_api(
-        log: str,
+        body: ApiRequestBody,
         current_user: Annotated[str, Depends(get_authenticated_user)],
-    ) -> None:
+    ) -> str:
         """
         Fluentdのhttp outputからのログ出力を受け取る
         """
-        logger.info(log)
+        logger.info(body.log)
+        return "Ok"
 
     return app
 
