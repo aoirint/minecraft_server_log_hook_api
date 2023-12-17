@@ -1,0 +1,9 @@
+services:
+  app:
+    # image: docker.aoirint.com/aoirint/minecraft_server_log_hook_api:latest
+    build: .
+    environment:
+      - APP_JWT_SECRET_KEY
+      - APP_DISCORD_WEBHOOK_URL
+    ports:
+      - "${HOST_PORT:?}:8000"
