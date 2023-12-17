@@ -8,7 +8,7 @@ from typing import Annotated, Any
 import jwt
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import Body, Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 
