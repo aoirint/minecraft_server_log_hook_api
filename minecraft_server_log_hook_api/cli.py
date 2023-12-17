@@ -127,6 +127,8 @@ def create_app(
 def main() -> None:
     load_dotenv()
 
+    default_host: str | None = os.environ.get("APP_HOST") or "0.0.0.0"
+    default_port: str | None = os.environ.get("APP_PORT") or "8000"
     default_jwt_secret_key: str | None = os.environ.get("APP_JWT_SECRET_KEY") or None
     default_discord_webhook_url: str | None = (
         os.environ.get("APP_DISCORD_WEBHOOK_URL") or None
@@ -136,12 +138,14 @@ def main() -> None:
     parser.add_argument(
         "--host",
         type=str,
-        default="0.0.0.0",
+        default=default_host,
+        required=default_host is None,
     )
     parser.add_argument(
         "--port",
         type=int,
-        default=8000,
+        default=default_port,
+        required=default_port is None,
     )
     parser.add_argument(
         "--jwt_secret_key",
