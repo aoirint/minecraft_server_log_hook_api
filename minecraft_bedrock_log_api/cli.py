@@ -17,9 +17,10 @@ def create_app(
     jwt_secret_key: str,
 ) -> FastAPI:
     app = FastAPI()
+    security = HTTPBearer()
 
     def get_authenticated_user(
-        authorization: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer)],
+        authorization: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     ) -> str:
         token = authorization.credentials
         credential_exception = HTTPException(
