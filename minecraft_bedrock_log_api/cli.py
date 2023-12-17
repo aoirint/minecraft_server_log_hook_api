@@ -1,5 +1,7 @@
+import logging
 import os
 from argparse import ArgumentParser
+from logging import getLogger
 from typing import Annotated, Any
 
 import jwt
@@ -7,6 +9,8 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+logger = getLogger(__name__)
 
 
 def create_app(
@@ -84,6 +88,11 @@ def main() -> None:
     host: str = args.host
     port: int = args.port
     jwt_secret_key: str = args.jwt_secret_key
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s : %(message)s",
+    )
 
     app = create_app(
         jwt_secret_key=jwt_secret_key,
