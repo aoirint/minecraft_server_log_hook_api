@@ -141,7 +141,7 @@ def main() -> None:
     parser.add_argument(
         "--port",
         type=int,
-        default=24931,
+        default=8000,
     )
     parser.add_argument(
         "--jwt_secret_key",
