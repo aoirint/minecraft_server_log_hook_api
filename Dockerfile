@@ -35,12 +35,12 @@ EOF
 RUN <<EOF
     set -eu
 
-    mkdir -p /code/minecraft_bedrock_log_api
+    mkdir -p /code/minecraft_server_log_hook_api
     chown -R user:user /code
 EOF
 
-WORKDIR /code/minecraft_bedrock_log_api
-ADD ./pyproject.toml ./poetry.lock /code/minecraft_bedrock_log_api/
+WORKDIR /code/minecraft_server_log_hook_api
+ADD ./pyproject.toml ./poetry.lock /code/minecraft_server_log_hook_api/
 
 RUN <<EOF
     set -eu
@@ -48,7 +48,7 @@ RUN <<EOF
     gosu user poetry install --only main
 EOF
 
-ADD ./minecraft_bedrock_log_api /code/minecraft_bedrock_log_api/minecraft_bedrock_log_api
-ADD ./scripts /code/minecraft_bedrock_log_api/scripts
+ADD ./minecraft_server_log_hook_api /code/minecraft_server_log_hook_api/minecraft_server_log_hook_api
+ADD ./scripts /code/minecraft_server_log_hook_api/scripts
 
-ENTRYPOINT [ "gosu", "user", "poetry", "run", "python", "-m", "minecraft_bedrock_log_api" ]
+ENTRYPOINT [ "gosu", "user", "poetry", "run", "python", "-m", "minecraft_server_log_hook_api" ]

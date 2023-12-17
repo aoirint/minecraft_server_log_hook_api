@@ -15,7 +15,7 @@ py_version = "py311"
 
 
 [tool.poetry]
-name = "minecraft-bedrock-log-api"
+name = "minecraft-server-log-hook-api"
 version = "0.1.0"
 description = ""
 authors = ["aoirint <aoirint@gmail.com>"]
