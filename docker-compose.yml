@@ -2,6 +2,7 @@ services:
   app:
     # image: docker.aoirint.com/aoirint/minecraft_server_log_hook_api:latest
     build: .
+    restart: always
     environment:
       - APP_JWT_SECRET_KEY
       - APP_DISCORD_WEBHOOK_URL
