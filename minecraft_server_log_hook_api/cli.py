@@ -26,7 +26,7 @@ class ApiRequestBody(BaseModel):
 
 
 def create_app(
-    server_timezone: ZoneInfo,
+    minecraft_server_timezone: ZoneInfo,
     notification_timezone: ZoneInfo,
     jwt_secret_key: str,
     discord_webhook_url: str,
@@ -83,7 +83,7 @@ def create_app(
             timestamp_string = m.group(1)  # %Y-%m-%d %H:%M:%S:%f without timezone info
             timestamp = (
                 datetime.strptime(timestamp_string, "%Y-%m-%d %H:%M:%S:%f")
-                .replace(tzinfo=server_timezone)
+                .replace(tzinfo=minecraft_server_timezone)
                 .astimezone(tz=notification_timezone)
             )
 
@@ -106,7 +106,7 @@ def create_app(
             timestamp_string = m.group(1)  # %Y-%m-%d %H:%M:%S:%f without timezone info
             timestamp = (
                 datetime.strptime(timestamp_string, "%Y-%m-%d %H:%M:%S:%f")
-                .replace(tzinfo=server_timezone)
+                .replace(tzinfo=minecraft_server_timezone)
                 .astimezone(tz=notification_timezone)
             )
 
@@ -134,7 +134,9 @@ def main() -> None:
 
     default_host: str | None = os.environ.get("APP_HOST") or "0.0.0.0"
     default_port: str | None = os.environ.get("APP_PORT") or "8000"
-    default_server_timezone: str | None = os.environ.get("APP_SERVER_TIMEZONE") or "UTC"
+    default_minecraft_server_timezone: str | None = (
+        os.environ.get("APP_MINECRAFT_SERVER_TIMEZONE") or "UTC"
+    )
     default_notification_timezone: str | None = (
         os.environ.get("APP_NOTIFICATION_TIMEZONE") or "UTC"
     )
@@ -157,10 +159,10 @@ def main() -> None:
         required=default_port is None,
     )
     parser.add_argument(
-        "--server_timezone",
+        "--minecraft_server_timezone",
         type=str,
-        default=default_server_timezone,
-        required=default_server_timezone is None,
+        default=default_minecraft_server_timezone,
+        required=default_minecraft_server_timezone is None,
     )
     parser.add_argument(
         "--notification_timezone",
@@ -189,7 +191,7 @@ def main() -> None:
 
     host: str = args.host
     port: int = args.port
-    server_timezone_string: str = args.server_timezone
+    minecraft_server_timezone_string: str = args.minecraft_server_timezone
     notification_timezone_string: str = args.notification_timezone
     jwt_secret_key: str = args.jwt_secret_key
     discord_webhook_url: str = args.discord_webhook_url
@@ -199,11 +201,11 @@ def main() -> None:
         format="%(asctime)s %(levelname)s %(name)s : %(message)s",
     )
 
-    server_timezone = ZoneInfo(key=server_timezone_string)
+    minecraft_server_timezone = ZoneInfo(key=minecraft_server_timezone_string)
     notification_timezone = ZoneInfo(key=notification_timezone_string)
 
     app = create_app(
-        server_timezone=server_timezone,
+        minecraft_server_timezone=minecraft_server_timezone,
         notification_timezone=notification_timezone,
         jwt_secret_key=jwt_secret_key,
         discord_webhook_url=discord_webhook_url,
