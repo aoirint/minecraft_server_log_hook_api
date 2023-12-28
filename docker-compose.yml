@@ -4,7 +4,9 @@ services:
     build: .
     restart: always
     environment:
-      - APP_JWT_SECRET_KEY
-      - APP_DISCORD_WEBHOOK_URL
+      - APP_SERVER_TIMEZONE=${APP_SERVER_TIMEZONE:?}
+      - APP_NOTIFICATION_TIMEZONE=${APP_NOTIFICATION_TIMEZONE:?}
+      - APP_JWT_SECRET_KEY=${APP_JWT_SECRET_KEY:?}
+      - APP_DISCORD_WEBHOOK_URL=${APP_DISCORD_WEBHOOK_URL:?}
     ports:
       - "${HOST_PORT:?}:8000"
