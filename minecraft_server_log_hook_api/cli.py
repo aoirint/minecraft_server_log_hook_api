@@ -19,7 +19,6 @@ from pydantic import BaseModel
 from . import __VERSION__ as APP_VERSION
 
 logger = getLogger(__name__)
-JST = ZoneInfo("Asia/Tokyo")
 
 
 class ApiRequestBody(BaseModel):
@@ -27,6 +26,8 @@ class ApiRequestBody(BaseModel):
 
 
 def create_app(
+    server_timezone: ZoneInfo,
+    notification_timezone: ZoneInfo,
     jwt_secret_key: str,
     discord_webhook_url: str,
 ) -> FastAPI:
@@ -79,10 +80,12 @@ def create_app(
 
         m = re.search(r"\[(.+?) INFO\] Player disconnected: (.+?), ", log)
         if m:
-            timestamp_string = m.group(1)
-            timestamp = datetime.strptime(
-                timestamp_string, "%Y-%m-%d %H:%M:%S:%f"
-            ).astimezone(JST)
+            timestamp_string = m.group(1)  # %Y-%m-%d %H:%M:%S:%f without timezone info
+            timestamp = (
+                datetime.strptime(timestamp_string, "%Y-%m-%d %H:%M:%S:%f")
+                .replace(tzinfo=server_timezone)
+                .astimezone(tz=notification_timezone)
+            )
 
             minecraft_username = m.group(2)
             message = f"[{timestamp.isoformat()}] {minecraft_username} が退出しました"
@@ -100,10 +103,12 @@ def create_app(
 
         m = re.search(r"\[(.+?) INFO\] Player connected: (.+?), ", log)
         if m:
-            timestamp_string = m.group(1)
-            timestamp = datetime.strptime(
-                timestamp_string, "%Y-%m-%d %H:%M:%S:%f"
-            ).astimezone(JST)
+            timestamp_string = m.group(1)  # %Y-%m-%d %H:%M:%S:%f without timezone info
+            timestamp = (
+                datetime.strptime(timestamp_string, "%Y-%m-%d %H:%M:%S:%f")
+                .replace(tzinfo=server_timezone)
+                .astimezone(tz=notification_timezone)
+            )
 
             minecraft_username = m.group(2)
             message = f"[{timestamp.isoformat()}] {minecraft_username} が入室しました"
@@ -129,6 +134,10 @@ def main() -> None:
 
     default_host: str | None = os.environ.get("APP_HOST") or "0.0.0.0"
     default_port: str | None = os.environ.get("APP_PORT") or "8000"
+    default_server_timezone: str | None = os.environ.get("APP_SERVER_TIMEZONE") or "UTC"
+    default_notification_timezone: str | None = (
+        os.environ.get("APP_NOTIFICATION_TIMEZONE") or "UTC"
+    )
     default_jwt_secret_key: str | None = os.environ.get("APP_JWT_SECRET_KEY") or None
     default_discord_webhook_url: str | None = (
         os.environ.get("APP_DISCORD_WEBHOOK_URL") or None
@@ -146,6 +155,18 @@ def main() -> None:
         type=int,
         default=default_port,
         required=default_port is None,
+    )
+    parser.add_argument(
+        "--server_timezone",
+        type=str,
+        default=default_server_timezone,
+        required=default_server_timezone is None,
+    )
+    parser.add_argument(
+        "--notification_timezone",
+        type=str,
+        default=default_notification_timezone,
+        required=default_notification_timezone is None,
     )
     parser.add_argument(
         "--jwt_secret_key",
@@ -168,6 +189,8 @@ def main() -> None:
 
     host: str = args.host
     port: int = args.port
+    server_timezone_string: str = args.server_timezone
+    notification_timezone_string: str = args.notification_timezone
     jwt_secret_key: str = args.jwt_secret_key
     discord_webhook_url: str = args.discord_webhook_url
 
@@ -176,7 +199,12 @@ def main() -> None:
         format="%(asctime)s %(levelname)s %(name)s : %(message)s",
     )
 
+    server_timezone = ZoneInfo(key=server_timezone_string)
+    notification_timezone = ZoneInfo(key=notification_timezone_string)
+
     app = create_app(
+        server_timezone=server_timezone,
+        notification_timezone=notification_timezone,
         jwt_secret_key=jwt_secret_key,
         discord_webhook_url=discord_webhook_url,
     )
