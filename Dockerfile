@@ -52,8 +52,8 @@ RUN --mount=type=cache,uid=1000,gid=1000,target=/home/user/.cache/pypoetry/cache
     gosu user poetry install --no-root --only main
 EOF
 
-ADD ./minecraft_server_log_hook_api /code/minecraft_server_log_hook_api/minecraft_server_log_hook_api
-ADD ./scripts /code/minecraft_server_log_hook_api/scripts
+ADD --chown=1000:1000 ./minecraft_server_log_hook_api /code/minecraft_server_log_hook_api/minecraft_server_log_hook_api
+ADD --chown=1000:1000 ./scripts /code/minecraft_server_log_hook_api/scripts
 RUN --mount=type=cache,uid=1000,gid=1000,target=/home/user/.cache/pypoetry/cache \
     --mount=type=cache,uid=1000,gid=1000,target=/home/user/.cache/pypoetry/artifacts <<EOF
     set -eu
