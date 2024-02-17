@@ -4,7 +4,7 @@ FROM python:3.11
 ARG DEBIAN_FRONTEND=noninteractive
 ARG PIP_NO_CACHE_DIR=1
 ENV PYTHONUNBUFFERED=1
-ENV PATH=/home/user/.local/bin:${PATH}
+ENV PATH=/code/minecraft_server_log_hook_api/.venv/bin:/home/user/.local/bin:${PATH}
 
 RUN <<EOF
     set -eu
@@ -29,6 +29,11 @@ RUN <<EOF
     set -eu
 
     gosu user pip install "poetry==${POETRY_VERSION}"
+
+    gosu user poetry config virtualenvs.in-project true
+
+    mkdir -p /home/user/.cache/pypoetry/{cache,artifacts}
+    chown -R "user:user" /home/user/.cache
 EOF
 
 RUN <<EOF
