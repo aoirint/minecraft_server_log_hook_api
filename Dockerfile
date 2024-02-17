@@ -44,15 +44,21 @@ RUN <<EOF
 EOF
 
 WORKDIR /code/minecraft_server_log_hook_api
-ADD ./pyproject.toml ./poetry.lock /code/minecraft_server_log_hook_api/
-
-RUN <<EOF
+ADD --chown=1000:1000 ./pyproject.toml ./poetry.lock ./README.md /code/minecraft_server_log_hook_api/
+RUN --mount=type=cache,uid=1000,gid=1000,target=/home/user/.cache/pypoetry/cache \
+    --mount=type=cache,uid=1000,gid=1000,target=/home/user/.cache/pypoetry/artifacts <<EOF
     set -eu
 
-    gosu user poetry install --only main
+    gosu user poetry install --no-root --only main
 EOF
 
 ADD ./minecraft_server_log_hook_api /code/minecraft_server_log_hook_api/minecraft_server_log_hook_api
 ADD ./scripts /code/minecraft_server_log_hook_api/scripts
+RUN --mount=type=cache,uid=1000,gid=1000,target=/home/user/.cache/pypoetry/cache \
+    --mount=type=cache,uid=1000,gid=1000,target=/home/user/.cache/pypoetry/artifacts <<EOF
+    set -eu
+
+    gosu user poetry install --only main
+EOF
 
 ENTRYPOINT [ "gosu", "user", "poetry", "run", "python", "-m", "minecraft_server_log_hook_api" ]
