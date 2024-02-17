@@ -40,7 +40,7 @@ RUN <<EOF
     set -eu
 
     mkdir -p /code/minecraft_server_log_hook_api
-    chown -R user:user /code
+    chown -R user:user /code/minecraft_server_log_hook_api
 EOF
 
 WORKDIR /code/minecraft_server_log_hook_api
