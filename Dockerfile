@@ -24,7 +24,7 @@ RUN <<EOF
     useradd --non-unique --uid 1000 --gid 1000 --create-home user
 EOF
 
-ARG POETRY_VERSION=1.7.1
+ARG POETRY_VERSION=1.8.2
 RUN <<EOF
     set -eu
 
